@@ -18,10 +18,23 @@ const points: Record<PointId, Point> = {
   }
 }
 
+function getDepArr(): PointId[] {
+  // if now is past 3pm, set sfc as dep
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  if (hours > 14 || (hours === 14 && minutes > 0)) {
+    return ["sfc", "shonandai"];
+  } else {
+    return ["shonandai", "sfc"];
+  }
+}
+
 export default function Home() {
   const styles = useSafeAreaInsets();
-  const [dep, setDep] = React.useState<PointId>("shonandai");
-  const [arr, setArr] = React.useState<PointId>("sfc");
+  const depArr = getDepArr();
+  const [dep, setDep] = React.useState<PointId>(depArr[0]);
+  const [arr, setArr] = React.useState<PointId>(depArr[1]);
   return (
     <View style={{...styles, backgroundColor: "white", height: "100%", width: "100%"}}>
       <XStack paddingHorizontal={"$5"} paddingTop={"$3"} paddingBottom={"$1"} alignItems={"center"}
