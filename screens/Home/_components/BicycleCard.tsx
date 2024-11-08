@@ -5,7 +5,7 @@ import * as React from "react";
 import {useEffect} from "react";
 import {PointId} from "../../../types/points";
 import {ApiResponse} from "../../../types/hello-cycling";
-import {CannotRentChip, CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
+import {CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
 
 interface StationItem {
   name: string;
@@ -48,23 +48,7 @@ function calculateAvailableStations(apiRes: ApiResponse, dep: PointId) {
   return {depStations, arrStations};
 }
 
-
-const DepStationList = ({stations}: { stations: StationItem[] }) => (
-  <FlatList
-    data={stations}
-    renderItem={({item}) => (
-      <ListItem
-        title={item.name}
-        icon={item.remaining >= 4 ? <Circle color={"lightseagreen"} size={"$2"}/> :
-          <AlertTriangle color={"orange"} size={"$2"}/>}
-        iconAfter={<Text fontSize={"$5"}>{item.remaining}台</Text>}
-      />
-    )}
-    keyExtractor={(_item, index) => index.toString()}
-  />
-)
-
-const ArrStationList = ({stations}: { stations: StationItem[] }) => (
+const StationList = ({stations}: { stations: StationItem[] }) => (
   <FlatList
     data={stations}
     renderItem={({item}) => (
@@ -124,14 +108,14 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   const getChip = () => {
     if (availableBikes && availableBikes >= 4) {
       return <VacantChip/>
-    } else if (returnAvailableTotal && returnAvailableTotal <= 0) {
+    } else if (rentAvailableTotal !== undefined && rentAvailableTotal <= 0) {
+      return null;
+    } else if (returnAvailableTotal !== undefined && returnAvailableTotal <= 0) {
       return <CannotReturnChip/>
-    } else if (returnAvailableTotal && returnAvailableTotal <= 3) {
+    } else if (returnAvailableTotal !== undefined && returnAvailableTotal <= 3) {
       return <ReturnWarningChip/>
-    } else if (rentAvailableTotal && rentAvailableTotal <= 3) {
+    } else if (rentAvailableTotal !== undefined && rentAvailableTotal <= 3) {
       return <RentalWarningChip/>
-    } else if (rentAvailableTotal && rentAvailableTotal <= 0) {
-      return <CannotRentChip/>
     }
     return null;
   }
@@ -145,17 +129,19 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
           </YStack>
           <XStack height={"$3"}>
             {getChip()}
-            {availableBikes ? <H4 alignSelf={"center"}>{availableBikes}台</H4> : <Spinner size={"large"}/>}
+            {availableBikes !== undefined ?
+              <H4 alignSelf={"center"} color={availableBikes <= 0 ? "red" : undefined}>{availableBikes}台</H4> :
+              <Spinner size={"large"}/>}
           </XStack>
         </XStack>
       </Card.Header>
       <YStack paddingHorizontal={"$4"} maxHeight={200}>
-        {depStations ? <DepStationList stations={depStations}/> : <Spinner size={"large"}/>}
+        {depStations ? <StationList stations={depStations}/> : <Spinner size={"large"}/>}
         <XStack justifyContent={"center"} marginTop={"$1"}>
           <ChevronDown color={"gray"}/>
         </XStack>
         <Text textAlign={"left"} color={"gray"} marginBottom={"$2"} marginLeft={"$3"}>返却可能台数</Text>
-        {arrStations ? <ArrStationList stations={arrStations}/> : <Spinner size={"large"}/>}
+        {arrStations ? <StationList stations={arrStations}/> : <Spinner size={"large"}/>}
       </YStack>
       <Card.Footer paddingHorizontal={"$4"} paddingBottom={"$4"} paddingTop={"$3"}>
         <XStack flex={1}>
