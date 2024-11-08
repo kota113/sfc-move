@@ -3,9 +3,9 @@ import {View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Button, Text, XStack, YStack} from "tamagui";
 import {ArrowRightLeft} from "@tamagui/lucide-icons";
-import BicycleCard from "./Home/_components/BicycleCard";
-import BusCard from "./Home/_components/BusCard";
-import {Point, PointId} from "../types/points";
+import BicycleCard from "./_components/BicycleCard";
+import BusCard from "./_components/BusCard";
+import {Point, PointId} from "../../types/points";
 
 const points: Record<PointId, Point> = {
   sfc: {
