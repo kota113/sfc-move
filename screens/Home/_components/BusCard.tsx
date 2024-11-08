@@ -26,7 +26,8 @@ function extractCloseBusTimes(apiRes: BusTimeApiRes[]): BusItem[] {
   const now = new Date();
   const nowTime = now.getHours() * 100 + now.getMinutes();
 
-  const closestBusTimes: BusItem[] = apiRes
+  const uniqueBusTimes = new Set<string>();
+  return apiRes
     .filter(res => res.scheduleType === currentScheduleType && parseInt(res.time) >= nowTime)
     .map(res => {
       const time = parseInt(res.time);
@@ -35,14 +36,17 @@ function extractCloseBusTimes(apiRes: BusTimeApiRes[]): BusItem[] {
       date.setMinutes(time % 100);
       const isExpress = res.dest.includes("急・");
       const destination = res.dest.replace("急・", "");
-      return {destination: destination, type: (isExpress ? "express" : "local" as BusType), time: date};
+      const busItem = {destination: destination, type: (isExpress ? "express" : "local" as BusType), time: date};
+      const uniqueKey = `${busItem.time.getTime()}-${busItem.destination}-${busItem.type}`;
+      if (!uniqueBusTimes.has(uniqueKey)) {
+        uniqueBusTimes.add(uniqueKey);
+        return busItem;
+      }
+      return null;
     })
-    .sort((a, b) => a.time.getTime() - b.time.getTime())
-    .slice(0, 7);
-
-  return closestBusTimes.filter((item, index, self) =>
-    self.findIndex(i => i.time.getTime() === item.time.getTime()) === index
-  );
+    .filter(item => item !== null)
+    .sort((a, b) => a!.time.getTime() - b!.time.getTime())
+    .slice(0, 7) as BusItem[];
 }
 
 export default function BusCard({dep, arr}: { dep: PointId, arr: PointId }) {
