@@ -6,7 +6,7 @@ import {useEffect} from "react";
 import * as Linking from 'expo-linking';
 import {PointId} from "../../../types/points";
 import {ApiResponse} from "../../../types/hello-cycling";
-import {CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
+import {CannotRentChip, CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
 
 interface StationItem {
   name: string;
@@ -116,7 +116,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
     if (availableBikes && availableBikes >= 4) {
       return <VacantChip/>
     } else if (rentAvailableTotal !== undefined && rentAvailableTotal <= 0) {
-      return null;
+      return <CannotRentChip/>;
     } else if (returnAvailableTotal !== undefined && returnAvailableTotal <= 0) {
       return <CannotReturnChip/>
     } else if (returnAvailableTotal !== undefined && returnAvailableTotal <= 3) {

@@ -29,9 +29,9 @@ export const CannotReturnChip = () => (
   </YStack>
 )
 
-// export const CannotRentChip = () => (
-//   <YStack justifyContent={"center"} backgroundColor={"red"} paddingHorizontal={"$2"} borderRadius={"$radius.3"}
-//           marginRight={"$2"}>
-//     <Text fontSize={"$4"} fontWeight={"bold"} color={"white"}>レンタル不可</Text>
-//   </YStack>
-// )
+export const CannotRentChip = () => (
+  <YStack justifyContent={"center"} backgroundColor={"red"} paddingHorizontal={"$2"} borderRadius={"$radius.3"}
+          marginRight={"$2"}>
+    <Text fontSize={"$4"} fontWeight={"bold"} color={"white"}>レンタル不可</Text>
+  </YStack>
+)
