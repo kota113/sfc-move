@@ -33,7 +33,7 @@ function extractCloseBusTimes(apiRes: BusTimeApiRes[]): BusItem[] {
       const date = new Date();
       date.setHours(Math.floor(time / 100));
       date.setMinutes(time % 100);
-      const isExpress = res.dest.includes("急");
+      const isExpress = res.dest.includes("急・");
       const destination = res.dest.replace("急・", "");
       return {destination: destination, type: (isExpress ? "express" : "local" as BusType), time: date};
     })
@@ -85,7 +85,7 @@ export default function BusCard({dep, arr}: { dep: PointId, arr: PointId }) {
             />
           )}
           keyExtractor={(item, index) => index.toString()}
-        /> : <Spinner size={"large"} height={200}/>}
+        /> : <Spinner size={"large"} height={200} color={"black"}/>}
       </YStack>
     </Card>
   )

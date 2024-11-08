@@ -1,8 +1,9 @@
 import {Button, Card, H4, ListItem, Paragraph, Spinner, Text, XStack, YStack} from "tamagui";
 import {FlatList} from "react-native";
-import {AlertTriangle, ChevronDown, Circle, LogOut, X} from "@tamagui/lucide-icons";
+import {AlertTriangle, ChevronDown, Circle, LogOut, RefreshCw, X} from "@tamagui/lucide-icons";
 import * as React from "react";
 import {useEffect} from "react";
+import * as Linking from 'expo-linking';
 import {PointId} from "../../../types/points";
 import {ApiResponse} from "../../../types/hello-cycling";
 import {CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
@@ -83,27 +84,33 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   const [rentAvailableTotal, setRentAvailableTotal] = React.useState<number>();
   const [returnAvailableTotal, setReturnAvailableTotal] = React.useState<number>();
   const [availableBikes, setAvailableBikes] = React.useState<number>();
-  useEffect(() => {
+
+  async function updateData() {
     setRentAvailableTotal(undefined);
     setReturnAvailableTotal(undefined);
     setAvailableBikes(undefined);
     setArrStations(undefined);
     setDepStations(undefined);
-    // fetch data from API
-    fetch("https://sfcmove-functions.alpaca131.workers.dev/api/hello-cycling")
-      .then(res => res.json())
-      .then((apiRes: ApiResponse) => {
-        if (apiRes) {
-          const {depStations, arrStations} = calculateAvailableStations(apiRes, dep);
-          setDepStations(depStations);
-          setArrStations(arrStations);
-          const availabilities = calculateAvailableBikes(depStations, arrStations);
-          setRentAvailableTotal(availabilities.rentAvailableTotal);
-          setReturnAvailableTotal(availabilities.returnAvailableTotal);
-          setAvailableBikes(Math.min(availabilities.rentAvailableTotal, availabilities.returnAvailableTotal));
-        }
-      })
-      .catch(console.error);
+    try {
+      // fetch data from API
+      const response = await fetch("https://sfcmove-functions.alpaca131.workers.dev/api/hello-cycling");
+      const apiRes: ApiResponse = await response.json();
+      if (apiRes) {
+        const {depStations, arrStations} = calculateAvailableStations(apiRes, dep);
+        setDepStations(depStations);
+        setArrStations(arrStations);
+        const availabilities = calculateAvailableBikes(depStations, arrStations);
+        setRentAvailableTotal(availabilities.rentAvailableTotal);
+        setReturnAvailableTotal(availabilities.returnAvailableTotal);
+        setAvailableBikes(Math.min(availabilities.rentAvailableTotal, availabilities.returnAvailableTotal));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  useEffect(() => {
+    updateData().then();
   }, [dep, arr]);
   const getChip = () => {
     if (availableBikes && availableBikes >= 4) {
@@ -131,21 +138,29 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
             {getChip()}
             {availableBikes !== undefined ?
               <H4 alignSelf={"center"} color={availableBikes <= 0 ? "red" : undefined}>{availableBikes}台</H4> :
-              <Spinner size={"large"}/>}
+              <Spinner size={"large"} color={"black"}/>}
           </XStack>
         </XStack>
       </Card.Header>
       <YStack paddingHorizontal={"$4"} maxHeight={200}>
-        {depStations ? <StationList stations={depStations}/> : <Spinner size={"large"}/>}
+        {depStations ? <StationList stations={depStations}/> : <Spinner size={"large"} color={"black"}/>}
         <XStack justifyContent={"center"} marginTop={"$1"}>
           <ChevronDown color={"gray"}/>
         </XStack>
         <Text textAlign={"left"} color={"gray"} marginBottom={"$2"} marginLeft={"$3"}>返却可能台数</Text>
-        {arrStations ? <StationList stations={arrStations}/> : <Spinner size={"large"}/>}
+        {arrStations ? <StationList stations={arrStations}/> : <Spinner size={"large"} color={"black"}/>}
       </YStack>
       <Card.Footer paddingHorizontal={"$4"} paddingBottom={"$4"} paddingTop={"$3"}>
-        <XStack flex={1}>
-          <Button borderRadius="$10" iconAfter={<LogOut/>}>
+        <XStack flex={1} justifyContent={"space-between"}>
+          <Button
+            icon={<RefreshCw/>}
+            onPress={updateData}
+          />
+          <Button
+            borderRadius="$10"
+            iconAfter={<LogOut/>}
+            onPress={() => Linking.openURL("https://www.hellocycling.jp/app/openapp")}
+          >
             アプリを開く
           </Button>
         </XStack>
