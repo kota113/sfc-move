@@ -12,10 +12,6 @@ module.exports = function(api) {
           disableExtraction: process.env.NODE_ENV === 'development',
         },
       ],
-        ["expo-font",
-            {
-                "fonts": ["@tamagui/font-inter/otf/Inter-Medium.otf", "@tamagui/font-inter/otf/Inter-Bold.otf"]
-            }],
       // NOTE: this is only necessary if you are using reanimated for animations
       'react-native-reanimated/plugin',
     ],
