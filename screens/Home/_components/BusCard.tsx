@@ -1,6 +1,6 @@
-import {Card, H4, ListItem, Paragraph, Spinner, Text, YStack} from "tamagui";
+import {Card, H4, ListItem, Paragraph, Spinner, Text, XStack, YStack} from "tamagui";
 import {FlatList} from "react-native";
-import {ChevronRight, ChevronsRight} from "@tamagui/lucide-icons";
+import {Bus, ChevronRight, ChevronsRight} from "@tamagui/lucide-icons";
 import * as React from "react";
 import {useEffect} from "react";
 import {PointId} from "../../../types/points";
@@ -65,25 +65,42 @@ export default function BusCard({dep, arr}: { dep: PointId, arr: PointId }) {
   return (
     <Card elevate size="$4" marginTop={"$3"}>
       <Card.Header>
-        <H4>バス</H4>
+        <XStack>
+          <Bus size={"$2.5"} marginRight={"$1"}/>
+          <H4>バス</H4>
+        </XStack>
         <Paragraph theme={"alt2"}>神奈川中央交通</Paragraph>
       </Card.Header>
       <YStack paddingHorizontal={"$4"} paddingBottom={"$4"} maxHeight={220}>
         {busTimes ? <FlatList
           data={busTimes}
-          renderItem={({item}: { item: BusItem }) => (
-            <ListItem
-              title={`${item.destination} 行き`}
-              subTitle={item.type === "express" ? "急行" : "普通"}
-              icon={item.type === "express" ?
-                <ChevronsRight backgroundColor={"orange"} borderRadius={"$radius.1"} size={"$2"}/> :
-                <ChevronRight backgroundColor={"lightseagreen"} borderRadius={"$radius.1"} size={"$2"}/>}
-              iconAfter={<Text fontSize={"$6"}>{item.time.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</Text>}
-            />
-          )}
+          renderItem={({item}: { item: BusItem }) => {
+            const remainingTime = item.time.getTime() - new Date().getTime();
+            return (
+              <ListItem
+                title={`${item.destination} 行き`}
+                subTitle={item.type === "express" ? "急行" : "普通"}
+                icon={item.type === "express" ?
+                  <ChevronsRight backgroundColor={"orange"} borderRadius={"$radius.1"} size={"$2"}/> :
+                  <ChevronRight backgroundColor={"lightseagreen"} borderRadius={"$radius.1"} size={"$2"}/>}
+                iconAfter={
+                  remainingTime <= 300000 ?
+                    <YStack>
+                      <Text fontSize={"$6"} color={"orangered"}>あと{Math.floor(remainingTime / 60000)}分</Text>
+                      <Paragraph theme={"alt2"} textAlign={"right"}>{item.time.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                      })}</Paragraph>
+                    </YStack>
+                    :
+                    <Text fontSize={"$6"}>{item.time.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}</Text>
+                }
+              />
+            )
+          }}
           keyExtractor={(item, index) => index.toString()}
         /> : <Spinner size={"large"} height={200} color={"black"}/>}
       </YStack>

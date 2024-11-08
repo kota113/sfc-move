@@ -1,6 +1,6 @@
 import {Button, Card, H4, ListItem, Paragraph, Spinner, Text, XStack, YStack} from "tamagui";
 import {FlatList} from "react-native";
-import {AlertTriangle, ChevronDown, Circle, LogOut, RefreshCw, X} from "@tamagui/lucide-icons";
+import {AlertTriangle, Bike, ChevronDown, Circle, LogOut, RefreshCw, X} from "@tamagui/lucide-icons";
 import * as React from "react";
 import {useEffect} from "react";
 import * as Linking from 'expo-linking';
@@ -66,6 +66,38 @@ const StationList = ({stations}: { stations: StationItem[] }) => (
   />
 )
 
+// const LastUpdatedAtTooltip = ({lastUpdatedAt}: { lastUpdatedAt: Date }) => (
+//   <Tooltip>
+//     <Tooltip.Trigger>
+//       <Button icon={<Info/>}/>
+//     </Tooltip.Trigger>
+//     <Tooltip.Content
+//       enterStyle={{x: 0, y: -5, opacity: 0, scale: 0.9}}
+//       exitStyle={{x: 0, y: -5, opacity: 0, scale: 0.9}}
+//       scale={1}
+//       x={0}
+//       y={0}
+//       opacity={1}
+//       animation={[
+//         'quick',
+//         {
+//           opacity: {
+//             overshootClamping: true,
+//           },
+//         },
+//       ]}
+//     >
+//       <Tooltip.Arrow/>
+//       <Paragraph size="$2" lineHeight="$1">
+//         最終更新: {lastUpdatedAt.toLocaleTimeString(["ja"], {
+//         hour: '2-digit',
+//         minute: '2-digit'
+//       })}
+//       </Paragraph>
+//     </Tooltip.Content>
+//   </Tooltip>
+// )
+
 function calculateAvailableBikes(depStations: StationItem[], arrStations: StationItem[]) {
   let rentAvailableTotal = 0;
   depStations.forEach(station => {
@@ -79,6 +111,7 @@ function calculateAvailableBikes(depStations: StationItem[], arrStations: Statio
 }
 
 export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) {
+  const [lastUpdatedAt, setLastUpdatedAt] = React.useState<Date>();
   const [depStations, setDepStations] = React.useState<StationItem[]>();
   const [arrStations, setArrStations] = React.useState<StationItem[]>();
   const [rentAvailableTotal, setRentAvailableTotal] = React.useState<number>();
@@ -86,6 +119,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   const [availableBikes, setAvailableBikes] = React.useState<number>();
 
   async function updateData() {
+    setLastUpdatedAt(undefined);
     setRentAvailableTotal(undefined);
     setReturnAvailableTotal(undefined);
     setAvailableBikes(undefined);
@@ -96,6 +130,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
       const response = await fetch("https://sfcmove-functions.alpaca131.workers.dev/api/hello-cycling");
       const apiRes: ApiResponse = await response.json();
       if (apiRes) {
+        setLastUpdatedAt(new Date(apiRes.lastUpdatedAt));
         const {depStations, arrStations} = calculateAvailableStations(apiRes, dep);
         setDepStations(depStations);
         setArrStations(arrStations);
@@ -131,7 +166,10 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
       <Card.Header padded>
         <XStack justifyContent={"space-between"}>
           <YStack>
-            <H4>自転車</H4>
+            <XStack>
+              <Bike size={"$2.5"} marginRight={"$1"}/>
+              <H4>自転車</H4>
+            </XStack>
             <Paragraph theme={"alt2"}>Hello Cycling</Paragraph>
           </YStack>
           <XStack height={"$3"}>
@@ -152,10 +190,12 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
       </YStack>
       <Card.Footer paddingHorizontal={"$4"} paddingBottom={"$4"} paddingTop={"$3"}>
         <XStack flex={1} justifyContent={"space-between"}>
-          <Button
-            icon={<RefreshCw/>}
-            onPress={updateData}
-          />
+          <XStack flex={1} justifyContent={"flex-start"}>
+            <Button
+              icon={<RefreshCw/>}
+              onPress={updateData}
+            />
+          </XStack>
           <Button
             borderRadius="$10"
             iconAfter={<LogOut/>}

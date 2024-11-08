@@ -56,4 +56,5 @@ export interface Station {
 
 export interface ApiResponse {
   stations: Record<"shonandai_west" | "shonandai_east" | "sfc", Station[]>;
+  lastUpdatedAt: Date
 }
