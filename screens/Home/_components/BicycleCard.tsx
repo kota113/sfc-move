@@ -175,7 +175,10 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
           <XStack height={"$3"}>
             {getChip()}
             {availableBikes !== undefined ?
-              <H4 alignSelf={"center"} color={availableBikes <= 0 ? "red" : undefined}>{availableBikes}台</H4> :
+              <XStack>
+                <H4 alignSelf={"center"} color={"gray"}>残り</H4>
+                <H4 alignSelf={"center"} color={availableBikes <= 0 ? "red" : undefined}>{availableBikes}台</H4>
+              </XStack> :
               <Spinner size={"large"} color={"black"}/>}
           </XStack>
         </XStack>
