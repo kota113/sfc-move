@@ -50,20 +50,33 @@ function calculateAvailableStations(apiRes: ApiResponse, dep: PointId) {
 }
 
 const StationList = ({stations}: { stations: StationItem[] }) => (
-  <FlatList
-    data={stations}
-    renderItem={({item}) => (
+  <>
+    {stations.length > 1 ?
+      <FlatList
+        data={stations}
+        renderItem={({item}) => (
+          <ListItem
+            alignItems={"center"}
+            title={item.name}
+            icon={item.remaining >= 4 ? <Circle color={"lightseagreen"} size={"$2"}/> : item.remaining > 0 ?
+              <AlertTriangle color={"orange"} size={"$2"}/> : <X color={"red"} size={"$2"}/>}
+            iconAfter={<Text fontSize={"$5"}
+                             color={item.remaining <= 0 ? "red" : undefined}>{item.remaining}台</Text>}
+          />
+        )}
+        keyExtractor={(_item, index) => index.toString()}
+      />
+      :
       <ListItem
         alignItems={"center"}
-        title={item.name}
-        icon={item.remaining >= 4 ? <Circle color={"lightseagreen"} size={"$2"}/> : item.remaining > 0 ?
+        title={stations[0].name}
+        icon={stations[0].remaining >= 4 ? <Circle color={"lightseagreen"} size={"$2"}/> : stations[0].remaining > 0 ?
           <AlertTriangle color={"orange"} size={"$2"}/> : <X color={"red"} size={"$2"}/>}
         iconAfter={<Text fontSize={"$5"}
-                         color={item.remaining <= 0 ? "red" : undefined}>{item.remaining}台</Text>}
+                         color={stations[0].remaining <= 0 ? "red" : undefined}>{stations[0].remaining}台</Text>}
       />
-    )}
-    keyExtractor={(_item, index) => index.toString()}
-  />
+    }
+  </>
 )
 
 // const LastUpdatedAtTooltip = ({lastUpdatedAt}: { lastUpdatedAt: Date }) => (
