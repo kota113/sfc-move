@@ -1,4 +1,4 @@
-export type PointId = "sfc" | "shonandai";
+export type PointId = "sfc" | "shonandai" | "sfcHonkan";
 
 export interface Point {
   id: PointId;
