@@ -45,7 +45,11 @@ function extractCloseBusTimes(apiRes: BusTimeApiRes[]): BusItem[] {
       return null;
     })
     .filter(item => item !== null)
-    .sort((a, b) => a!.time.getTime() - b!.time.getTime())
+    .sort((a, b) => {
+      const timeDiff = a!.time.getTime() - b!.time.getTime();
+      if (timeDiff !== 0) return timeDiff;
+      return a!.type === "express" && b!.type !== "express" ? -1 : 1;
+    })
     .slice(0, 7) as BusItem[];
 }
 
@@ -67,7 +71,7 @@ export default function BusCard({dep, arr}: { dep: PointId, arr: PointId }) {
     });
   }, [dep]);
   return (
-    <Card elevate size="$4" marginTop={"$3"}>
+    <Card elevate size="$4" marginTop={"$3"} maxHeight={"45%"}>
       <Card.Header>
         <XStack>
           <Bus size={"$2.5"} marginRight={"$1"}/>
@@ -90,7 +94,8 @@ export default function BusCard({dep, arr}: { dep: PointId, arr: PointId }) {
                 iconAfter={
                   remainingTime <= 300000 ?
                     <YStack>
-                      <Text fontSize={"$6"} color={"orangered"}>あと{Math.floor(remainingTime / 60000)}分</Text>
+                      <Text fontSize={"$6"}
+                            color={"orangered"}>あと{Math.max(0, Math.floor(remainingTime / 60000))}分</Text>
                       <Paragraph theme={"alt2"} textAlign={"right"}>{item.time.toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit"

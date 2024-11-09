@@ -162,7 +162,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
     return null;
   }
   return (
-    <Card elevate size="$4" marginTop={"$4"}>
+    <Card elevate size="$4" marginTop={"$4"} maxHeight={"55%"}>
       <Card.Header padded>
         <XStack justifyContent={"space-between"}>
           <YStack>
