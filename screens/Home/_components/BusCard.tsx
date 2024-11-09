@@ -86,6 +86,11 @@ function extractCloseBusTimes(apiRes: BusTimeApiRes[]): BusItem[] {
   return busItems.slice(0, 7);
 }
 
+const getCurrentScheduleType = (): BusScheduleType => {
+  const day = new Date().getDay();
+  return day === 0 ? "holiday" : day === 6 ? "saturday" : "weekday";
+};
+
 export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
   const [busTimes, setBusTimes] = React.useState<BusItem[] | undefined>([]);
   const [busData, setBusData] = React.useState<BusTimeApiRes[] | undefined>(undefined);
@@ -94,12 +99,7 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
   useEffect(() => {
     setBusTimes(undefined);
     setBusData(undefined);
-    const currentScheduleType: BusScheduleType =
-      new Date().getDay() === 0
-        ? "holiday"
-        : new Date().getDay() === 6
-          ? "saturday"
-          : "weekday";
+    const currentScheduleType: BusScheduleType = getCurrentScheduleType();
     // 休日は本館前行きのバスはない
     if (currentScheduleType === "holiday" && station === "sfcHonkan") {
       setBusTimes([]);
@@ -131,12 +131,7 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
   useEffect(() => {
     if (busData) {
       const intervalId = setInterval(() => {
-        const currentScheduleType: BusScheduleType =
-          new Date().getDay() === 0
-            ? "holiday"
-            : new Date().getDay() === 6
-              ? "saturday"
-              : "weekday";
+        const currentScheduleType: BusScheduleType = getCurrentScheduleType();
         // 休日は本館前行きのバスはない
         // todo: Yahoo!乗換案内からより正確なデータを取得する
         if (currentScheduleType === "holiday" && station === "sfcHonkan") return setBusTimes([]);
