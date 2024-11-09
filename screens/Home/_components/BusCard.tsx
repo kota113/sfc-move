@@ -1,4 +1,4 @@
-import {Card, H4, ListItem, Paragraph, Spinner, Text, XStack, YStack} from "tamagui";
+import {Card, H4, H5, ListItem, Paragraph, Spinner, Text, XStack, YStack} from "tamagui";
 import {FlatList} from "react-native";
 import {Bus, ChevronRight, ChevronsRight} from "@tamagui/lucide-icons";
 import * as React from "react";
@@ -111,7 +111,8 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
         <Paragraph theme={"alt2"}>神奈川中央交通</Paragraph>
       </Card.Header>
       <YStack paddingHorizontal={"$4"} paddingBottom={"$4"} maxHeight={220}>
-        {busTimes ? (
+        {busTimes !== undefined ?
+          busTimes.length > 0 ? (
           <FlatList
             data={busTimes}
             renderItem={({item}: { item: BusItem }) => {
@@ -165,9 +166,9 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
             }}
             keyExtractor={(item, index) => index.toString()}
           />
-        ) : (
-          <Spinner size={"large"} height={200} color={"black"}/>
-        )}
+          ) : <YStack height={"$3"} justifyContent={"center"}><H5 textAlign={"center"} color={"orangered"}
+                                                                  fontWeight={"bold"}>本日のバスは終了しました</H5></YStack> :
+          <Spinner size={"large"} height={200} color={"black"}/>}
       </YStack>
     </Card>
   );
