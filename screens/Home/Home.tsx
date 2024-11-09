@@ -53,7 +53,7 @@ export default function Home() {
           </Button>
         </XStack>
       </XStack>
-      <YStack paddingHorizontal={15}>
+      <YStack paddingHorizontal={15} flex={1}>
         <BusCard dep={dep} arr={arr}/>
         <BicycleCard dep={dep} arr={arr}/>
       </YStack>
