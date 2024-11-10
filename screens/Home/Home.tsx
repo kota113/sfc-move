@@ -40,7 +40,11 @@ export default function Home() {
   const [dep, setDep] = React.useState<PointId>(depArr[0]);
   const [arr, setArr] = React.useState<PointId>(depArr[1]);
   return (
-    <GestureHandlerRootView style={{...styles, backgroundColor: "white", height: "100%", width: "100%"}}>
+    <GestureHandlerRootView style={{
+      paddingTop: styles.top,
+      paddingBottom: styles.bottom,
+      backgroundColor: "white", height: "100%", width: "100%"
+    }}>
       <XStack paddingHorizontal={"$5"} paddingTop={"$3"} paddingBottom={"$3"} alignItems={"center"}
               justifyContent={"space-between"}>
         <XStack>
