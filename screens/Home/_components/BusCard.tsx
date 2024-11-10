@@ -142,7 +142,7 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
   }, [busData]);
 
   return (
-    <Card elevate size="$4" marginTop={"$3"} maxHeight={"45%"}>
+    <Card elevate size="$4" marginTop={"$3"} maxHeight={busTimes && busTimes.length === 0 ? 180 : 300} flex={1}>
       <Card.Header>
         <XStack justifyContent={"space-between"}>
           <YStack>
@@ -162,7 +162,7 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
           </Group>
         </XStack>
       </Card.Header>
-      <YStack paddingHorizontal={"$4"} paddingBottom={"$4"} maxHeight={220}>
+      <YStack paddingHorizontal={"$4"} paddingBottom={"$4"} flex={1}>
         {busTimes !== undefined ?
           busTimes.length > 0 ? (
           <FlatList
@@ -218,7 +218,7 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
             }}
             keyExtractor={(item, index) => index.toString()}
           />
-          ) : <YStack height={"$3"} justifyContent={"center"}><H5 textAlign={"center"} color={"orangered"}
+          ) : <YStack justifyContent={"center"} flex={1}><H5 textAlign={"center"} color={"orangered"}
                                                                   fontWeight={"bold"}>本日のバスは終了しました</H5></YStack> :
           <Spinner size={"large"} height={200} color={"black"}/>}
       </YStack>
