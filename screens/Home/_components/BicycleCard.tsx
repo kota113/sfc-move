@@ -212,13 +212,17 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
               icon={<RefreshCw/>}
               onPress={updateData}
             />
+            <Button
+              marginLeft={"$1.5"}
+              icon={<Settings/>}
+            />
           </XStack>
           <Button
             borderRadius="$10"
             iconAfter={<LogOut/>}
             onPress={() => Linking.openURL("https://www.hellocycling.jp/app/openapp")}
           >
-            アプリを開く
+            レンタル
           </Button>
         </XStack>
       </Card.Footer>
