@@ -142,7 +142,7 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
   }, [busData]);
 
   return (
-    <Card elevate size="$4" marginTop={"$3"} maxHeight={busTimes && busTimes.length === 0 ? 180 : 300} flex={1}>
+    <Card elevate size="$4" marginTop={"$2"} maxHeight={busTimes && busTimes.length === 0 ? 180 : 300} flex={1}>
       <Card.Header>
         <XStack justifyContent={"space-between"}>
           <YStack>

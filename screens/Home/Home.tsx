@@ -1,11 +1,11 @@
 import * as React from 'react'
-import {View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Button, Text, XStack, YStack} from "tamagui";
 import {ArrowRightLeft} from "@tamagui/lucide-icons";
 import BicycleCard from "./_components/BicycleCard";
 import BusCard from "./_components/BusCard";
 import {Point, PointId} from "../../types/points";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 
 const points: Record<PointId, Point> = {
   sfc: {
@@ -40,8 +40,8 @@ export default function Home() {
   const [dep, setDep] = React.useState<PointId>(depArr[0]);
   const [arr, setArr] = React.useState<PointId>(depArr[1]);
   return (
-    <View style={{...styles, backgroundColor: "white", height: "100%", width: "100%"}}>
-      <XStack paddingHorizontal={"$5"} paddingTop={"$3"} paddingBottom={"$1"} alignItems={"center"}
+    <GestureHandlerRootView style={{...styles, backgroundColor: "white", height: "100%", width: "100%"}}>
+      <XStack paddingHorizontal={"$5"} paddingTop={"$3"} paddingBottom={"$3"} alignItems={"center"}
               justifyContent={"space-between"}>
         <XStack>
           <Text fontSize={"$8"} marginVertical={"auto"}>{points[dep].name}</Text>
@@ -61,6 +61,6 @@ export default function Home() {
         <BusCard dep={dep} arr={arr}/>
         <BicycleCard dep={dep} arr={arr}/>
       </YStack>
-    </View>
+    </GestureHandlerRootView>
   );
 }

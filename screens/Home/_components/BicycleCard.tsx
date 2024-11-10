@@ -1,23 +1,31 @@
 import {Button, Card, H4, ListItem, Paragraph, Spinner, Text, XStack, YStack} from "tamagui";
 import {FlatList} from "react-native";
-import {AlertTriangle, Bike, ChevronDown, Circle, LogOut, RefreshCw, X} from "@tamagui/lucide-icons";
+import {AlertTriangle, Bike, ChevronDown, Circle, LogOut, RefreshCw, Settings2, X} from "@tamagui/lucide-icons";
 import * as React from "react";
 import {useEffect} from "react";
 import * as Linking from 'expo-linking';
 import {PointId} from "../../../types/points";
 import {ApiResponse} from "../../../types/hello-cycling";
 import {CannotRentChip, CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
+import {getData, storeJsonData} from "../../../utils/storage";
+import PrefDialog from "./PrefDialog";
 
 interface StationItem {
   name: string;
   remaining: number;
 }
 
-function calculateAvailableStations(apiRes: ApiResponse, dep: PointId) {
+type PrefKey = "includeEast";
+
+type BicycleCardPref = Record<PrefKey, boolean>;
+
+function calculateAvailableStations(apiRes: ApiResponse, dep: PointId, includeEast: boolean) {
   const depStations: StationItem[] = [];
   const arrStations: StationItem[] = [];
+  // combine west and east
+  const shonandaiStations = includeEast ? apiRes.stations.shonandai_west.concat(apiRes.stations.shonandai_east) : apiRes.stations.shonandai_west;
   if (dep == "shonandai") {
-    apiRes.stations.shonandai_west.forEach(station => {
+    shonandaiStations.forEach(station => {
       depStations.push({
         name: station.name,
         remaining: station.num_bikes_rentalable
@@ -36,7 +44,7 @@ function calculateAvailableStations(apiRes: ApiResponse, dep: PointId) {
         remaining: station.num_bikes_rentalable
       });
     })
-    apiRes.stations.shonandai_west.forEach(station => {
+    shonandaiStations.forEach(station => {
       arrStations.push({
         name: station.name,
         remaining: station.num_bikes_parkable
@@ -130,8 +138,10 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   const [rentAvailableTotal, setRentAvailableTotal] = React.useState<number>();
   const [returnAvailableTotal, setReturnAvailableTotal] = React.useState<number>();
   const [availableBikes, setAvailableBikes] = React.useState<number>();
+  const [openPrefDialog, setOpenPrefDialog] = React.useState(false);
+  const [pref, setPref] = React.useState<BicycleCardPref>();
 
-  async function updateData() {
+  async function updateData(includeEast: boolean) {
     setLastUpdatedAt(undefined);
     setRentAvailableTotal(undefined);
     setReturnAvailableTotal(undefined);
@@ -144,7 +154,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
       const apiRes: ApiResponse = await response.json();
       if (apiRes) {
         setLastUpdatedAt(new Date(apiRes.lastUpdatedAt));
-        const {depStations, arrStations} = calculateAvailableStations(apiRes, dep);
+        const {depStations, arrStations} = calculateAvailableStations(apiRes, dep, includeEast);
         setDepStations(depStations);
         setArrStations(arrStations);
         const availabilities = calculateAvailableBikes(depStations, arrStations);
@@ -158,7 +168,14 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   }
 
   useEffect(() => {
-    updateData().then();
+    getData(`bicycle-pref`).then((res: BicycleCardPref) => {
+      let pref: BicycleCardPref = {includeEast: false}
+      if (res) {
+        pref = res;
+      }
+      setPref(pref)
+      updateData(pref.includeEast).then();
+    });
   }, [dep, arr]);
   const getChip = () => {
     if (availableBikes && availableBikes >= 4) {
@@ -176,56 +193,66 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   }
   return (
     // memo: BicycleCardもmaxHeightを値指定、flex={1}にした方がいいかも。
-    <Card elevate size="$4" marginTop={"$4"} maxHeight={"55%"}>
-      <Card.Header padded>
-        <XStack justifyContent={"space-between"}>
-          <YStack>
-            <XStack>
-              <Bike size={"$2.5"} marginRight={"$1"}/>
-              <H4>自転車</H4>
-            </XStack>
-            <Paragraph theme={"alt2"}>Hello Cycling</Paragraph>
-          </YStack>
-          <XStack height={"$3"}>
-            {getChip()}
-            {availableBikes !== undefined ?
+    <>
+      <Card elevate size="$4" marginTop={"$4"} maxHeight={"55%"}>
+        <Card.Header padded>
+          <XStack justifyContent={"space-between"}>
+            <YStack>
               <XStack>
-                <H4 alignSelf={"center"} color={"gray"}>残り</H4>
-                <H4 alignSelf={"center"} color={availableBikes <= 0 ? "gray" : undefined}>{availableBikes}台</H4>
-              </XStack> :
-              <Spinner size={"large"} color={"black"}/>}
+                <Bike size={"$2.5"} marginRight={"$1"}/>
+                <H4>自転車</H4>
+              </XStack>
+              <Paragraph theme={"alt2"}>Hello Cycling</Paragraph>
+            </YStack>
+            <XStack height={"$3"}>
+              {getChip()}
+              {availableBikes !== undefined ?
+                <XStack>
+                  <H4 alignSelf={"center"} color={"gray"}>残り</H4>
+                  <H4 alignSelf={"center"} color={availableBikes <= 0 ? "gray" : undefined}>{availableBikes}台</H4>
+                </XStack> :
+                <Spinner size={"large"} color={"black"}/>}
+            </XStack>
           </XStack>
-        </XStack>
-      </Card.Header>
-      <YStack paddingHorizontal={"$4"} maxHeight={200}>
-        {depStations ? <StationList stations={depStations}/> : <Spinner size={"large"} color={"black"}/>}
-        <XStack justifyContent={"center"} marginTop={"$1"}>
-          <ChevronDown color={"gray"}/>
-        </XStack>
-        <Text textAlign={"left"} color={"gray"} marginBottom={"$2"} marginLeft={"$3"}>返却可能台数</Text>
-        {arrStations ? <StationList stations={arrStations}/> : <Spinner size={"large"} color={"black"}/>}
-      </YStack>
-      <Card.Footer paddingHorizontal={"$4"} paddingBottom={"$4"} paddingTop={"$3"}>
-        <XStack flex={1} justifyContent={"space-between"}>
-          <XStack flex={1} justifyContent={"flex-start"}>
-            <Button
-              icon={<RefreshCw/>}
-              onPress={updateData}
-            />
-            <Button
-              marginLeft={"$1.5"}
-              icon={<Settings/>}
-            />
+        </Card.Header>
+        <YStack paddingHorizontal={"$4"} maxHeight={200}>
+          {depStations ? <StationList stations={depStations}/> : <Spinner size={"large"} color={"black"}/>}
+          <XStack justifyContent={"center"} marginTop={"$1"}>
+            <ChevronDown color={"gray"}/>
           </XStack>
-          <Button
-            borderRadius="$10"
-            iconAfter={<LogOut/>}
-            onPress={() => Linking.openURL("https://www.hellocycling.jp/app/openapp")}
-          >
-            レンタル
-          </Button>
-        </XStack>
-      </Card.Footer>
-    </Card>
+          <Text textAlign={"left"} color={"gray"} marginBottom={"$2"} marginLeft={"$3"}>返却可能台数</Text>
+          {arrStations ? <StationList stations={arrStations}/> : <Spinner size={"large"} color={"black"}/>}
+        </YStack>
+        <Card.Footer paddingHorizontal={"$4"} paddingBottom={"$4"} paddingTop={"$3"}>
+          <XStack flex={1} justifyContent={"space-between"}>
+            <XStack flex={1} justifyContent={"flex-start"}>
+              <Button
+                icon={<RefreshCw/>}
+                onPress={() => updateData(pref?.includeEast || false).then()}
+              />
+              <Button
+                marginLeft={"$1.5"}
+                icon={<Settings2/>}
+                onPress={() => setOpenPrefDialog(true)}
+              />
+            </XStack>
+            <Button
+              borderRadius="$10"
+              iconAfter={<LogOut/>}
+              onPress={() => Linking.openURL("https://www.hellocycling.jp/app/openapp")}
+            >
+              レンタル
+            </Button>
+          </XStack>
+        </Card.Footer>
+      </Card>
+      {pref !== undefined &&
+          <PrefDialog open={openPrefDialog} setOpen={setOpenPrefDialog} pref={pref} setPref={(pref) => {
+            setPref(pref);
+            storeJsonData(`bicycle-pref`, pref).then();
+            updateData(pref.includeEast).then();
+          }}/>
+      }
+    </>
   )
 }
