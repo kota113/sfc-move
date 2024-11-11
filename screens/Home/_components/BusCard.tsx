@@ -114,13 +114,15 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
         setBusData(res);
         setBusTimes(extractCloseBusTimes(res));
       }
+      const jsonFilePath = jsonPaths[depStation][arrStation]
+      if (!jsonFilePath) return;
       // Fetch from API...
       fetch(
-        `https://github.com/kota113/SfcBusSchedules/blob/main${jsonPaths[depStation][arrStation]}?raw=true`
+        `https://github.com/kota113/SfcBusSchedules/blob/main${jsonFilePath}?raw=true`
       )
         .then(res => res.json())
         .then((apiRes: BusTimeApiRes[]) => {
-          storeJsonData(`bus-${jsonPaths[depStation][arrStation]}`, apiRes).then();
+          storeJsonData(`bus-${jsonFilePath}`, apiRes).then();
           setBusData(apiRes);
           setBusTimes(extractCloseBusTimes(apiRes));
         })

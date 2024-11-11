@@ -47,7 +47,6 @@ function handleLocation(location: LocationObject, setDep: (dep: PointId) => void
   // if location is near sfc, set sfc as dep
   const sfc = {latitude: 35.38801283493936, longitude: 139.4272737529399};
   const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2);
-  console.log(distance);
   if (distance < 0.01) {
     setDep("sfc");
     setArr("shonandai");
@@ -65,8 +64,8 @@ async function checkLocationPerm() {
 }
 
 async function getLocation() {
-  if (await checkLocationPerm()) return;
-  return await Location.getLastKnownPositionAsync({});
+  if (!await checkLocationPerm()) return;
+  return await Location.getLastKnownPositionAsync();
 }
 
 export default function Home() {
@@ -120,7 +119,7 @@ export default function Home() {
         <BusCard dep={dep} arr={arr}/>
         <BicycleCard dep={dep} arr={arr}/>
       </YStack>
-      {appSettings &&
+      {appSettings !== undefined &&
           <SettingsDialog
               open={settingsOpen}
               setOpen={setSettingsOpen}
