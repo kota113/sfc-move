@@ -87,37 +87,6 @@ const StationList = ({stations}: { stations: StationItem[] }) => (
   </>
 )
 
-// const LastUpdatedAtTooltip = ({lastUpdatedAt}: { lastUpdatedAt: Date }) => (
-//   <Tooltip>
-//     <Tooltip.Trigger>
-//       <Button icon={<Info/>}/>
-//     </Tooltip.Trigger>
-//     <Tooltip.Content
-//       enterStyle={{x: 0, y: -5, opacity: 0, scale: 0.9}}
-//       exitStyle={{x: 0, y: -5, opacity: 0, scale: 0.9}}
-//       scale={1}
-//       x={0}
-//       y={0}
-//       opacity={1}
-//       animation={[
-//         'quick',
-//         {
-//           opacity: {
-//             overshootClamping: true,
-//           },
-//         },
-//       ]}
-//     >
-//       <Tooltip.Arrow/>
-//       <Paragraph size="$2" lineHeight="$1">
-//         最終更新: {lastUpdatedAt.toLocaleTimeString(["ja"], {
-//         hour: '2-digit',
-//         minute: '2-digit'
-//       })}
-//       </Paragraph>
-//     </Tooltip.Content>
-//   </Tooltip>
-// )
 
 function calculateAvailableBikes(depStations: StationItem[], arrStations: StationItem[]) {
   let rentAvailableTotal = 0;
