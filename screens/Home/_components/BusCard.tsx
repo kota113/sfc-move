@@ -152,14 +152,16 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
             </XStack>
             <Paragraph theme={"alt2"}>神奈川中央交通</Paragraph>
           </YStack>
-          <Group orientation="horizontal">
-            <Group.Item>
-              <Button themeInverse={station === "sfc"} onPress={() => setStation("sfc")}>慶応大学</Button>
-            </Group.Item>
-            <Group.Item>
-              <Button themeInverse={station === "sfcHonkan"} onPress={() => setStation("sfcHonkan")}>本館前</Button>
-            </Group.Item>
-          </Group>
+          {dep !== "shonandai" && (
+            <Group orientation="horizontal">
+              <Group.Item>
+                <Button themeInverse={station === "sfc"} onPress={() => setStation("sfc")}>慶応大学</Button>
+              </Group.Item>
+              <Group.Item>
+                <Button themeInverse={station === "sfcHonkan"} onPress={() => setStation("sfcHonkan")}>本館前</Button>
+              </Group.Item>
+            </Group>
+          )}
         </XStack>
       </Card.Header>
       <YStack paddingHorizontal={"$4"} paddingBottom={"$4"} flex={1}>
