@@ -28,26 +28,26 @@ function calculateAvailableStations(apiRes: ApiResponse, dep: PointId, includeEa
     shonandaiStations.forEach(station => {
       depStations.push({
         name: station.name,
-        remaining: station.num_bikes_rentalable
+        remaining: station.num_bikes_available
       });
     })
     apiRes.stations.sfc.forEach(station => {
       arrStations.push({
         name: station.name,
-        remaining: station.num_bikes_parkable
+        remaining: station.num_docks_available
       });
     })
   } else {
     apiRes.stations.sfc.forEach(station => {
       depStations.push({
         name: station.name,
-        remaining: station.num_bikes_rentalable
+        remaining: station.num_bikes_available
       });
     })
     shonandaiStations.forEach(station => {
       arrStations.push({
         name: station.name,
-        remaining: station.num_bikes_parkable
+        remaining: station.num_docks_available
       });
     })
   }
