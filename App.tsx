@@ -6,6 +6,7 @@ import config from './tamagui.config'
 import {useFonts} from "expo-font";
 import Home from "./screens/Home";
 import {StatusBar} from "expo-status-bar";
+import {useColorScheme} from "react-native";
 
 const Stack = createNativeStackNavigator()
 
@@ -18,7 +19,7 @@ export default function App() {
   if (!loaded) {
     return null
   }
-
+  const colorScheme = useColorScheme();
   return (
     <PortalProvider shouldAddRootHost>
       <TamaguiProvider config={config}>
@@ -27,7 +28,7 @@ export default function App() {
             <Stack.Screen name="Home" component={Home} options={{headerShown: false}}/>
           </Stack.Navigator>
         </NavigationContainer>
-        <StatusBar style="auto"/>
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'}/>
       </TamaguiProvider>
     </PortalProvider>
   );
