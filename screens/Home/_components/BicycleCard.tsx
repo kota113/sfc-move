@@ -101,7 +101,6 @@ function calculateAvailableBikes(depStations: StationItem[], arrStations: Statio
 }
 
 export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) {
-  const [lastUpdatedAt, setLastUpdatedAt] = React.useState<Date>();
   const [depStations, setDepStations] = React.useState<StationItem[]>();
   const [arrStations, setArrStations] = React.useState<StationItem[]>();
   const [rentAvailableTotal, setRentAvailableTotal] = React.useState<number>();
@@ -110,19 +109,20 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   const [openPrefDialog, setOpenPrefDialog] = React.useState(false);
   const [pref, setPref] = React.useState<BicycleCardPref>();
 
-  async function updateData(includeEast: boolean) {
-    setLastUpdatedAt(undefined);
+  function clearAllStates() {
     setRentAvailableTotal(undefined);
     setReturnAvailableTotal(undefined);
     setAvailableBikes(undefined);
     setArrStations(undefined);
     setDepStations(undefined);
+  }
+
+  async function updateData(includeEast: boolean) {
     try {
       // fetch data from API
       const response = await fetch("https://sfcmove-functions.alpaca131.workers.dev/api/hello-cycling");
       const apiRes: ApiResponse = await response.json();
       if (apiRes) {
-        setLastUpdatedAt(new Date(apiRes.lastUpdatedAt));
         const {depStations, arrStations} = calculateAvailableStations(apiRes, dep, includeEast);
         setDepStations(depStations);
         setArrStations(arrStations);
@@ -143,9 +143,18 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
         pref = res;
       }
       setPref(pref)
+      clearAllStates();
       updateData(pref.includeEast).then();
     });
   }, [dep, arr]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (pref) {
+        updateData(pref.includeEast).then();
+      }
+    }, 60000); // 60000 ms = 1 minute
+    return () => clearInterval(interval);
+  }, [pref, dep, arr]);
   const getChip = () => {
     if (availableBikes && availableBikes >= 4) {
       return <VacantChip/>
@@ -197,7 +206,10 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
             <XStack flex={1} justifyContent={"flex-start"}>
               <Button
                 icon={<RefreshCw/>}
-                onPress={() => updateData(pref?.includeEast || false).then()}
+                onPress={() => {
+                  clearAllStates();
+                  updateData(pref?.includeEast || false).then()
+                }}
               />
               <Button
                 marginLeft={"$1.5"}
@@ -219,6 +231,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
           <PrefDialog open={openPrefDialog} setOpen={setOpenPrefDialog} pref={pref} setPref={(pref) => {
             setPref(pref);
             storeJsonData(`bicycle-pref`, pref).then();
+            clearAllStates();
             updateData(pref.includeEast).then();
           }}/>
       }
