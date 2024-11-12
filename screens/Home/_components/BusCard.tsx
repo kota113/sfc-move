@@ -157,10 +157,14 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
           {dep !== "shonandai" && (
             <Group orientation="horizontal">
               <Group.Item>
-                <Button themeInverse={station === "sfc"} onPress={() => setStation("sfc")}>慶応大学</Button>
+                <Button backgroundColor={station == "sfc" ? "#232323" : undefined}
+                        color={station == "sfc" ? "white" : undefined}
+                        onPress={() => setStation("sfc")}>慶応大学</Button>
               </Group.Item>
               <Group.Item>
-                <Button themeInverse={station === "sfcHonkan"} onPress={() => setStation("sfcHonkan")}>本館前</Button>
+                <Button backgroundColor={station == "sfcHonkan" ? "#232323" : undefined}
+                        color={station == "sfcHonkan" ? "white" : undefined}
+                        onPress={() => setStation("sfcHonkan")}>本館前</Button>
               </Group.Item>
             </Group>
           )}
