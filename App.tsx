@@ -8,12 +8,20 @@ import Home from "./screens/Home";
 import {StatusBar} from "expo-status-bar";
 import {useColorScheme} from "react-native";
 import * as amplitude from '@amplitude/analytics-react-native';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://ec28960263fa24cb9e916e260d106148@o4508288388759552.ingest.us.sentry.io/4508288389939200',
+
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // enableSpotlight: __DEV__,
+});
 
 const Stack = createNativeStackNavigator()
 amplitude.init('b78cba8f767d392320833a6e0108bdc5');
 
-// noinspection JSUnusedGlobalSymbols
-export default function App() {
+
+function App() {
   const [loaded] = useFonts({
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
@@ -36,3 +44,6 @@ export default function App() {
     </PortalProvider>
   );
 }
+
+// noinspection JSUnusedGlobalSymbols
+export default Sentry.wrap(App);
