@@ -46,13 +46,13 @@ function getDepArr(): PointId[] {
 
 function handleLocation(location: LocationObject, setDep: (dep: PointId) => void, setArr: (arr: PointId) => void) {
   // if location is near sfc, set sfc as dep
-  const sfc = {latitude: 35.38801283493936, longitude: 139.4272737529399};
-  const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2);
-  let dep: PointId
-  let arr: PointId
-  if (distance < 0.01) {
+  const sfc = {latitude: 35.387615518299015, longitude: 139.42843437194827};
+  const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2) * 111139;
+  let dep: PointId;
+  let arr: PointId;
+  if (distance < 508.97323364163003) {
     dep = "sfc";
-    arr = "shonandai"
+    arr = "shonandai";
   } else {
     dep = "shonandai";
     arr = "sfc";
