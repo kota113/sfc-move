@@ -21,9 +21,6 @@
         "backgroundColor": "#ffffff",
         "monochromeImage": "./assets/monochromeIcon.png"
       },
-      "blockedPermissions": [
-        "android.permission.ACCESS_FINE_LOCATION"
-      ],
       "package": "com.kota113.sfcMove"
     },
     "web": {

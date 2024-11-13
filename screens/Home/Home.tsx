@@ -32,7 +32,7 @@ const points: Record<PointId, Point> = {
   }
 }
 
-function getDepArr(): PointId[] {
+function getTimeBasedDepArr(): PointId[] {
   // if now is past 3pm, set sfc as dep
   const now = new Date();
   const hours = now.getHours();
@@ -80,9 +80,9 @@ async function getLocation() {
 
 export default function Home() {
   const styles = useSafeAreaInsets();
-  const depArr = getDepArr();
-  const [dep, setDep] = React.useState<PointId>(depArr[0]);
-  const [arr, setArr] = React.useState<PointId>(depArr[1]);
+  const _ = getTimeBasedDepArr();
+  const [dep, setDep] = React.useState<PointId>(_[0]);
+  const [arr, setArr] = React.useState<PointId>(_[1]);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [appSettings, setAppSettings] = React.useState<AppSettings>();
   const [firstLaunch, setFirstLaunch] = React.useState(false);
