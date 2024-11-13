@@ -121,7 +121,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   async function updateData(includeEast: boolean) {
     try {
       // fetch data from API
-      const response = await fetch("https://sfcmove-functions.alpaca131.workers.dev/api/hello-cycling");
+      const response = await fetch("https://sfcmove-functions.kota113.com/api/hello-cycling");
       const apiRes: ApiResponse = await response.json();
       if (apiRes) {
         const {depStations, arrStations} = calculateAvailableStations(apiRes, dep, includeEast);
