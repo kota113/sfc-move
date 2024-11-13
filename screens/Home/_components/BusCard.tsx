@@ -121,13 +121,13 @@ export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
       )
         .then(res => res.json())
         .then((apiRes: BusTimeApiRes[]) => {
-          storeJsonData(`bus-${jsonFilePath}`, apiRes).then();
           setBusData(apiRes);
           setBusTimes(extractCloseBusTimes(apiRes));
+          storeJsonData(`bus-${jsonFilePath}`, apiRes).then();
         })
         .catch(err => console.error(err));
     });
-  }, [dep, station]);
+  }, [dep, arr, station]);
 
   useEffect(() => {
     if (busData) {

@@ -48,8 +48,8 @@ function handleLocation(location: LocationObject, setDep: (dep: PointId) => void
   // if location is near sfc, set sfc as dep
   const sfc = {latitude: 35.38801283493936, longitude: 139.4272737529399};
   const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2);
-  let dep: PointId | undefined = undefined
-  let arr: PointId | undefined = undefined
+  let dep: PointId
+  let arr: PointId
   if (distance < 0.01) {
     dep = "sfc";
     arr = "shonandai"
