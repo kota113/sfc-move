@@ -9,11 +9,12 @@ import BusCard from "./_components/BusCard";
 import {Point, PointId} from "../../types/points";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import * as Location from 'expo-location';
+import {LocationObject} from 'expo-location';
 import SettingsDialog from "./_components/SettingsDialog";
 import {AppSettings} from "../../types/settings";
 import {getData, storeJsonData} from "../../utils/storage";
 import {FirstLaunchDialog} from "./_components/FirstLaunchDialog";
-import handleLocation from "../../utils/handleLocation";
+import {track} from "@amplitude/analytics-react-native";
 
 
 const points: Record<PointId, Point> = {
@@ -43,6 +44,28 @@ function getDepArr(): PointId[] {
   }
 }
 
+function handleLocation(location: LocationObject, setDep: (dep: PointId) => void, setArr: (arr: PointId) => void) {
+  // if location is near sfc, set sfc as dep
+  const sfc = {latitude: 35.387615518299015, longitude: 139.42843437194827};
+  const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2) * 111139;
+  let dep: PointId;
+  let arr: PointId;
+  if (distance < 508.97323364163003) {
+    dep = "sfc";
+    arr = "shonandai";
+  } else {
+    dep = "shonandai";
+    arr = "sfc";
+  }
+  setDep(dep);
+  setArr(arr);
+  // amplitude
+  track("Fetched current position", {
+    dep: dep,
+    arr: arr
+  })
+}
+
 async function checkLocationPerm() {
   let {status} = await Location.requestForegroundPermissionsAsync();
   const granted = status === 'granted';
@@ -64,7 +87,7 @@ export default function Home() {
   const [appSettings, setAppSettings] = React.useState<AppSettings>();
   const [firstLaunch, setFirstLaunch] = React.useState(false);
   useEffect(() => {
-    const fetchSettingsAndLocation = async () => {
+    (async () => {
       const data = await getData("appSettings") as AppSettings;
       const latestSettings: AppSettings = {locationBasedSuggestEnabled: false};
       if (data) {
@@ -76,14 +99,10 @@ export default function Home() {
       await storeJsonData("appSettings", latestSettings);
       if (latestSettings.locationBasedSuggestEnabled) {
         const location = await getLocation();
-        if (location) {
-          handleLocation(location, setDep, setArr);
-        }
+        if (location) handleLocation(location, setDep, setArr);
       }
-    };
-    fetchSettingsAndLocation().then();
+    })();
   }, []);
-
 
   return (
     <GestureHandlerRootView style={{

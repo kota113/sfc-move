@@ -24,7 +24,6 @@
     "expo-linking": "~6.3.1",
     "expo-location": "~17.0.1",
     "expo-status-bar": "~1.12.1",
-    "geolib": "^3.3.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native-animated-pagination-dots": "^0.1.73",
