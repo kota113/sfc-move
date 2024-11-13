@@ -7,8 +7,9 @@ import {useFonts} from "expo-font";
 import Home from "./screens/Home";
 import {StatusBar} from "expo-status-bar";
 import * as amplitude from '@amplitude/analytics-react-native';
+import {RootStackParamList} from "./types/navigation";
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<RootStackParamList>()
 amplitude.init('b78cba8f767d392320833a6e0108bdc5');
 
 // noinspection JSUnusedGlobalSymbols

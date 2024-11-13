@@ -5,10 +5,6 @@ export const storeJsonData = async (key: string, value: object | Array<never>) =
   await AsyncStorage.setItem(key, jsonValue);
 };
 
-export const storeStringData = async (key: string, value: string) => {
-  await AsyncStorage.setItem(key, value);
-}
-
 export const getData = async (key: string) => {
   const value = await AsyncStorage.getItem(key);
   try {
