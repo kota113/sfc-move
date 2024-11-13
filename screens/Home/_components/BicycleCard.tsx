@@ -9,6 +9,7 @@ import {ApiResponse} from "../../../types/hello-cycling";
 import {CannotRentChip, CannotReturnChip, RentalWarningChip, ReturnWarningChip, VacantChip} from "./BicycleChips";
 import {getData, storeJsonData} from "../../../utils/storage";
 import PrefDialog from "./PrefDialog";
+import {track} from "@amplitude/analytics-react-native";
 
 interface StationItem {
   name: string;
@@ -208,7 +209,10 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
                 icon={<RefreshCw/>}
                 onPress={() => {
                   clearAllStates();
-                  updateData(pref?.includeEast || false).then()
+                  updateData(pref?.includeEast || false).then();
+                  track("BicycleCard Refreshed", {
+                    availableBikes: availableBikes
+                  });
                 }}
               />
               <Button

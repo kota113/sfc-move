@@ -7,8 +7,10 @@ import {useFonts} from "expo-font";
 import Home from "./screens/Home";
 import {StatusBar} from "expo-status-bar";
 import {useColorScheme} from "react-native";
+import * as amplitude from '@amplitude/analytics-react-native';
 
 const Stack = createNativeStackNavigator()
+amplitude.init('b78cba8f767d392320833a6e0108bdc5');
 
 // noinspection JSUnusedGlobalSymbols
 export default function App() {
@@ -20,6 +22,7 @@ export default function App() {
     return null
   }
   const colorScheme = useColorScheme();
+  amplitude.track('App Opened');
   return (
     <PortalProvider shouldAddRootHost>
       <TamaguiProvider config={config}>

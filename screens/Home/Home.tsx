@@ -14,6 +14,7 @@ import SettingsDialog from "./_components/SettingsDialog";
 import {AppSettings} from "../../types/settings";
 import {getData, storeJsonData} from "../../utils/storage";
 import {FirstLaunchDialog} from "./_components/FirstLaunchDialog";
+import {track} from "@amplitude/analytics-react-native";
 
 
 const points: Record<PointId, Point> = {
@@ -47,13 +48,22 @@ function handleLocation(location: LocationObject, setDep: (dep: PointId) => void
   // if location is near sfc, set sfc as dep
   const sfc = {latitude: 35.38801283493936, longitude: 139.4272737529399};
   const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2);
+  let dep: PointId | undefined = undefined
+  let arr: PointId | undefined = undefined
   if (distance < 0.01) {
-    setDep("sfc");
-    setArr("shonandai");
+    dep = "sfc";
+    arr = "shonandai"
   } else {
-    setDep("shonandai");
-    setArr("sfc");
+    dep = "shonandai";
+    arr = "sfc";
   }
+  setDep(dep);
+  setArr(arr);
+  // amplitude
+  track("Fetched current position", {
+    dep: dep,
+    arr: arr
+  })
 }
 
 async function checkLocationPerm() {
