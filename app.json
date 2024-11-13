@@ -29,15 +29,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font",
-      [
-        "@sentry/react-native/expo",
-        {
-          "url": "https://sentry.io/",
-          "project": "rod",
-          "organization": "sfcmove"
-        }
-      ]
+      "expo-font"
     ],
     "extra": {
       "eas": {
