@@ -91,10 +91,10 @@ const getCurrentScheduleType = (): BusScheduleType => {
   return day === 0 ? "holiday" : day === 6 ? "saturday" : "weekday";
 };
 
-export default function BusCard({dep, arr}: { dep: PointId; arr: PointId }) {
+export default function BusCard({dep, arr, isAtHonkan}: { dep: PointId; arr: PointId, isAtHonkan: boolean }) {
   const [busTimes, setBusTimes] = React.useState<BusItem[] | undefined>([]);
   const [busData, setBusData] = React.useState<BusTimeApiRes[] | undefined>(undefined);
-  const [station, setStation] = useState<SfcBusStop>("sfc");
+  const [station, setStation] = useState<SfcBusStop>(isAtHonkan ? "sfcHonkan" : "sfc");
 
   useEffect(() => {
     setBusTimes(undefined);

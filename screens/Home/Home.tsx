@@ -44,26 +44,25 @@ function getTimeBasedDepArr(): PointId[] {
   }
 }
 
-function handleLocation(location: LocationObject, setDep: (dep: PointId) => void, setArr: (arr: PointId) => void) {
-  // if location is near sfc, set sfc as dep
-  const sfc = {latitude: 35.387615518299015, longitude: 139.42843437194827};
-  const distance = Math.sqrt((location.coords.latitude - sfc.latitude) ** 2 + (location.coords.longitude - sfc.longitude) ** 2) * 111139;
-  let dep: PointId;
-  let arr: PointId;
-  if (distance < 508.97323364163003) {
-    dep = "sfc";
-    arr = "shonandai";
-  } else {
-    dep = "shonandai";
-    arr = "sfc";
-  }
+function handleLocation(location: LocationObject, setDep: (dep: PointId) => void, setArr: (arr: PointId) => void, setIsAtHonkan: (_: boolean) => void) {
+  const sfcAreaCenter = {latitude: 35.387615518299015, longitude: 139.42843437194827};
+  const sfcCenter = {latitude: 35.387947892809244, longitude: 139.42690014839175};
+
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    return Math.sqrt((lat1 - lat2) ** 2 + (lon1 - lon2) ** 2) * 111139;
+  };
+
+  const distanceToSfcArea = calculateDistance(location.coords.latitude, location.coords.longitude, sfcAreaCenter.latitude, sfcAreaCenter.longitude);
+  const distanceToSfcCenter = calculateDistance(location.coords.latitude, location.coords.longitude, sfcCenter.latitude, sfcCenter.longitude);
+
+  const dep = distanceToSfcArea < 508.97323364163003 ? "sfc" : "shonandai";
+  const arr = dep === "sfc" ? "shonandai" : "sfc";
+
   setDep(dep);
   setArr(arr);
-  // amplitude
-  track("Fetched current position", {
-    dep: dep,
-    arr: arr
-  })
+  setIsAtHonkan(distanceToSfcCenter < 172);
+
+  track("Fetched current position", {dep, arr});
 }
 
 async function checkLocationPerm() {
@@ -86,6 +85,7 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [appSettings, setAppSettings] = React.useState<AppSettings>();
   const [firstLaunch, setFirstLaunch] = React.useState(false);
+  const [isAtHonkan, setIsAtHonkan] = React.useState<boolean>(false);
   useEffect(() => {
     (async () => {
       const data = await getData("appSettings") as AppSettings;
@@ -99,7 +99,7 @@ export default function Home() {
       await storeJsonData("appSettings", latestSettings);
       if (latestSettings.locationBasedSuggestEnabled) {
         const location = await getLocation();
-        if (location) handleLocation(location, setDep, setArr);
+        if (location) handleLocation(location, setDep, setArr, setIsAtHonkan);
       }
     })();
   }, []);
@@ -126,7 +126,7 @@ export default function Home() {
         }}/>
       </XStack>
       <YStack paddingHorizontal={15} flex={1}>
-        <BusCard dep={dep} arr={arr}/>
+        <BusCard dep={dep} arr={arr} isAtHonkan={isAtHonkan}/>
         <BicycleCard dep={dep} arr={arr}/>
       </YStack>
       {appSettings !== undefined &&
@@ -144,7 +144,7 @@ export default function Home() {
                     }
                     (async () => {
                       const location = await getLocation();
-                      if (location) handleLocation(location, setDep, setArr);
+                      if (location) handleLocation(location, setDep, setArr, setIsAtHonkan);
                     })();
                   })
                 }
@@ -155,7 +155,7 @@ export default function Home() {
       <FirstLaunchDialog open={firstLaunch} setOpen={setFirstLaunch} enableLocationBasedSuggestion={() => {
         (async () => {
           const location = await getLocation();
-          if (location) handleLocation(location, setDep, setArr);
+          if (location) handleLocation(location, setDep, setArr, setIsAtHonkan);
         })();
         setAppSettings({...appSettings, locationBasedSuggestEnabled: true});
         storeJsonData("appSettings", {...appSettings, locationBasedSuggestEnabled: true}).then();
