@@ -97,6 +97,10 @@ export default function BusCard({dep, arr, isAtHonkan}: { dep: PointId; arr: Poi
   const [station, setStation] = useState<SfcBusStop>(isAtHonkan ? "sfcHonkan" : "sfc");
 
   useEffect(() => {
+    setStation(isAtHonkan ? "sfcHonkan" : "sfc");
+  }, [isAtHonkan]);
+
+  useEffect(() => {
     setBusTimes(undefined);
     setBusData(undefined);
     const currentScheduleType: BusScheduleType = getCurrentScheduleType();
