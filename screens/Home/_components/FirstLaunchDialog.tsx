@@ -32,11 +32,12 @@ export function FirstLaunchDialog(
           enterStyle={{x: 0, y: -20, opacity: 0, scale: 0.9}}
           exitStyle={{x: 0, y: 10, opacity: 0, scale: 0.95}}
         >
-          <YStack maxHeight={165} flex={1} justifyContent={"space-between"}>
+          <YStack maxHeight={180} flex={1} justifyContent={"space-between"}>
             <AlertDialog.Title fontSize={"$8"}>位置情報の利用</AlertDialog.Title>
-            <AlertDialog.Description>
+            <AlertDialog.Description marginTop={3} marginBottom={3}>
               <YStack>
                 <Text fontSize={16}>現在地から行き先を設定しますか？</Text>
+                <Text fontSize={16}>この機能には現在地の許可が必要です。</Text>
                 <Text fontSize={16}>設定からいつでも変更できます。</Text>
               </YStack>
             </AlertDialog.Description>
