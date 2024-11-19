@@ -27,7 +27,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "出発地と行先を自動で設定するために、位置情報を使用します。"
+        }
+      ]
     ],
     "extra": {
       "eas": {
