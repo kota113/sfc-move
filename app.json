@@ -31,7 +31,7 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "出発地と行先を自動で設定するために、位置情報を使用します。"
+          "locationWhenInUsePermission": "出発地と行先を自動で設定するために、位置情報を使用します。"
         }
       ]
     ],
