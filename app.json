@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kota113.sfcMove"
+      "bundleIdentifier": "com.kota113.sfcMove",
+      "config": {
+        "googleMapsApiKey": "AIzaSyCHx5dPwdvhl3F7B3sPfT-2eVFlcYUHPN4"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +24,12 @@
         "backgroundColor": "#ffffff",
         "monochromeImage": "./assets/monochromeIcon.png"
       },
-      "package": "com.kota113.sfcMove"
+      "package": "com.kota113.sfcMove",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBWw5BNTzhdANRkw_uBpEEIHG7kODbxnX4"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
