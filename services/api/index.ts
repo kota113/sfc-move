@@ -1,6 +1,7 @@
 // Export all API services
 export * from './supabase';
 export * from './taxiGroups';
+export * from './users'
 
 // Initialize anonymous sign-in
 import {isSignedIn, signInAnonymously} from './supabase';

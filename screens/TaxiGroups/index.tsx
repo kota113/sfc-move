@@ -4,7 +4,7 @@ import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Button, Card, H4, Input, Paragraph, Text, XStack, YStack} from "tamagui";
 import {ChevronLeft, Minus, Plus, Users} from "@tamagui/lucide-icons";
 import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NativeStackNavigationProp, NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from "../../types/navigation";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {ActivityIndicator, FlatList} from "react-native";
@@ -19,10 +19,10 @@ import {
   MAX_PEOPLE_PER_TAXI,
   TaxiGroup
 } from "../../services/api";
+import {isUserRegistered} from "../../services/api";
 
-export default function TaxiGroups() {
+export default function TaxiGroups({navigation}: NativeStackScreenProps<RootStackParamList>) {
   const styles = useSafeAreaInsets();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [taxiGroups, setTaxiGroups] = useState<TaxiGroup[]>([]);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroupPeopleCount, setNewGroupPeopleCount] = useState(1);
@@ -52,8 +52,10 @@ export default function TaxiGroups() {
         setLoading(false);
       }
     };
-
-    loadTaxiGroups();
+    isUserRegistered().then(res => {
+      if (!res) navigation.replace('TaxiGroupsOnboarding')
+      else loadTaxiGroups().then();
+    })
     track("Taxi Groups Screen Opened");
   }, []);
 
@@ -220,7 +222,7 @@ export default function TaxiGroups() {
             {/* Filter out the user's current group from the available groups */}
             {taxiGroups.filter(group => !userGroup || group.id !== userGroup.id).length === 0 ? (
               <YStack justifyContent="center" alignItems="center" flex={1}>
-                <Paragraph theme="alt2">現在アクティブなグループはありません</Paragraph>
+                <Paragraph theme="alt2">現在募集中のグループはありません</Paragraph>
                 <Paragraph theme="alt2">新しいグループを作成してください</Paragraph>
               </YStack>
             ) : (
