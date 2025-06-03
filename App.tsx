@@ -8,7 +8,6 @@ import Home from "./screens/Home";
 import {StatusBar} from "expo-status-bar";
 import * as amplitude from '@amplitude/analytics-react-native';
 import {RootStackParamList} from "./types/navigation";
-import ShareRide from './screens/ShareRide'
 import TaxiGroups from './screens/TaxiGroups'
 import {initializeApi} from './services/api/init'
 
@@ -40,7 +39,6 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Home">
             <Stack.Screen name="Home" component={Home} options={{headerShown: false}}/>
-            <Stack.Screen name="ShareRide" component={ShareRide} options={{headerShown: false}}/>
             <Stack.Screen name="TaxiGroups" component={TaxiGroups} options={{headerShown: false}}/>
           </Stack.Navigator>
         </NavigationContainer>
