@@ -6,6 +6,7 @@ import {Button, Text, XStack, YStack} from "tamagui";
 import {ArrowRightLeft, Settings} from "@tamagui/lucide-icons";
 import BicycleCard from "./_components/BicycleCard";
 import BusCard from "./_components/BusCard";
+import TaxiGroupsCard from "./_components/TaxiGroupsCard";
 import {Point, PointId} from "../../types/points";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import * as Location from 'expo-location';
@@ -128,6 +129,7 @@ export default function Home() {
       <YStack paddingHorizontal={15} flex={1}>
         <BusCard dep={dep} arr={arr} isAtHonkan={isAtHonkan}/>
         <BicycleCard dep={dep} arr={arr}/>
+        <TaxiGroupsCard/>
       </YStack>
       {appSettings !== undefined &&
           <SettingsDialog
