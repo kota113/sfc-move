@@ -14,9 +14,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kota113.sfcMove",
-      "config": {
-        "googleMapsApiKey": "AIzaSyCHx5dPwdvhl3F7B3sPfT-2eVFlcYUHPN4"
-      },
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -28,11 +25,7 @@
         "monochromeImage": "./assets/monochromeIcon.png"
       },
       "package": "com.kota113.sfcMove",
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyBWw5BNTzhdANRkw_uBpEEIHG7kODbxnX4"
-        }
-      },
+      "edgeToEdgeEnabled": "true",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
