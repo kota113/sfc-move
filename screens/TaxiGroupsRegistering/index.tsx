@@ -22,7 +22,7 @@ export default function TaxiGroupsRegistering({navigation}: NativeStackScreenPro
     }
     registerUser(email, username).then(() => {
       track("User registered");
-      navigation.navigate("TaxiGroups")
+      navigation.replace("TaxiGroups")
     })
   }
   return (
@@ -36,12 +36,16 @@ export default function TaxiGroupsRegistering({navigation}: NativeStackScreenPro
       <YStack flex={1} justifyContent={"center"} alignItems={"center"}>
         <YStack width={"70%"}>
           <Paragraph theme={"alt"} marginBottom={"$2"}>名前を入力</Paragraph>
-          <TextInput style={{borderRadius: 10, backgroundColor: "#e3e3e3", paddingHorizontal: 15, fontSize: 20}} onChangeText={setUsername}/>
+          <TextInput
+            style={{borderRadius: 10, backgroundColor: "#e3e3e3", paddingHorizontal: 15, fontSize: 20, color: "black"}}
+            onChangeText={setUsername}/>
           <Paragraph theme={"alt2"} marginTop={"$1"}>相乗りする他のユーザーに公開されます</Paragraph>
         </YStack>
         <YStack width={"70%"} marginTop={"$7"}>
           <Paragraph theme={"alt"} marginBottom={"$2"}>keio.jpアドレスを入力</Paragraph>
-          <TextInput style={{borderRadius: 10, backgroundColor: "#e3e3e3", paddingHorizontal: 15, fontSize: 13}} onChangeText={setEmail}/>
+          <TextInput
+            style={{borderRadius: 10, backgroundColor: "#e3e3e3", paddingHorizontal: 15, fontSize: 13, color: "black"}}
+            onChangeText={setEmail}/>
           <Paragraph theme={"alt2"} marginTop={"$1"}>他のユーザーには公開されません</Paragraph>
         </YStack>
       </YStack>

@@ -16,7 +16,7 @@ export default function TaxiGroupsCard() {
   };
 
   return (
-    <Card elevate size="$4" marginTop={"$2"} onPress={handlePress}>
+    <Card elevate size="$4" marginTop={"$3"} onPress={handlePress}>
       <Card.Header>
         <XStack justifyContent={"space-between"} alignItems={"center"}>
           <XStack>

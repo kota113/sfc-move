@@ -173,7 +173,7 @@ export default function BicycleCard({dep, arr}: { dep: PointId, arr: PointId }) 
   return (
     // memo: BicycleCardもmaxHeightを値指定、flex={1}にした方がいいかも。
     <>
-      <Card elevate size="$4" marginTop={"$4"} maxHeight={"55%"}>
+      <Card elevate size="$4" marginTop={"$3"} maxHeight={"55%"}>
         <Card.Header padded>
           <XStack justifyContent={"space-between"}>
             <YStack>

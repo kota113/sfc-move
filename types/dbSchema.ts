@@ -36,6 +36,7 @@ export type Database = {
         Row: {
           completed_at: string | null
           created_at: string
+          dep_from: Database["public"]["Enums"]["taxi_grouping_place"]
           host_id: string
           id: string
           memo: string | null
@@ -43,6 +44,7 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           created_at?: string
+          dep_from: Database["public"]["Enums"]["taxi_grouping_place"]
           host_id: string
           id?: string
           memo?: string | null
@@ -50,6 +52,7 @@ export type Database = {
         Update: {
           completed_at?: string | null
           created_at?: string
+          dep_from?: Database["public"]["Enums"]["taxi_grouping_place"]
           host_id?: string
           id?: string
           memo?: string | null
@@ -98,6 +101,7 @@ export type Database = {
         Returns: {
           completed_at: string | null
           created_at: string
+          dep_from: Database["public"]["Enums"]["taxi_grouping_place"]
           host_id: string
           id: string
           memo: string | null
@@ -105,7 +109,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      taxi_grouping_place: "station" | "sfc"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -220,6 +224,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      taxi_grouping_place: ["station", "sfc"],
+    },
   },
 } as const

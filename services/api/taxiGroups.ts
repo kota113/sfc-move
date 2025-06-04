@@ -6,11 +6,13 @@ export interface TaxiGroup {
   createdAt: Date;
   completedAt: Date;
   hostId: string;
+  hostName: string | null;
   memo: string | null;
   peopleCount: number;
   maxPeople: number;
   isUserMember: boolean;
   isUserHost: boolean;
+  depFrom: "station" | "sfc";
 }
 
 // Maximum people per taxi
@@ -48,21 +50,39 @@ export const fetchTaxiGroups = async (): Promise<TaxiGroup[]> => {
     }
     if (!memberships) return [];
 
+    // Get host information from public_user view
+    const hostIds = taxiGroups.map(group => group.host_id);
+    const {data: hostUsers, error: hostUsersError} = await supabase
+      .from('public_user')
+      .select('id, full_name')
+      .in('id', hostIds);
+
+    if (hostUsersError) {
+      console.error('Error fetching host users:', hostUsersError);
+      // Continue without host names if there's an error
+    }
+
     // Transform the data to match the TaxiGroup interface
     return taxiGroups.map(group => {
       const groupMembers = memberships.filter(m => m.group_id === group.id);
       const isUserMember = groupMembers.some(m => m.user_id === user.id);
+
+      // Find the host's name
+      const hostUser = hostUsers?.find(user => user.id === group.host_id);
+      const hostName = hostUser?.full_name || null;
 
       return {
         id: group.id,
         createdAt: new Date(group.created_at),
         completedAt: group.completed_at ? new Date(group.completed_at) : new Date(),
         hostId: group.host_id,
+        hostName,
         memo: group.memo,
         peopleCount: groupMembers.length,
         maxPeople: MAX_PEOPLE_PER_TAXI,
         isUserMember,
-        isUserHost: group.host_id === user.id
+        isUserHost: group.host_id === user.id,
+        depFrom: group.dep_from
       };
     });
   } catch (error) {
@@ -72,7 +92,7 @@ export const fetchTaxiGroups = async (): Promise<TaxiGroup[]> => {
 };
 
 // Function to create a new taxi group
-export const createTaxiGroup = async (peopleCount: number, memo: string = ''): Promise<TaxiGroup | null> => {
+export const createTaxiGroup = async (peopleCount: number, memo: string = '', depFrom: "station" | "sfc"): Promise<TaxiGroup | null> => {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -86,7 +106,8 @@ export const createTaxiGroup = async (peopleCount: number, memo: string = ''): P
       .insert({
         host_id: user.id,
         memo: memo || null,
-        completed_at: null
+        completed_at: null,
+        dep_from: depFrom
       })
       .select()
       .single();
@@ -110,17 +131,31 @@ export const createTaxiGroup = async (peopleCount: number, memo: string = ''): P
       return null;
     }
 
+    // Get the user's name from public_user view
+    const {data: hostUser, error: hostUserError} = await supabase
+      .from('public_user')
+      .select('full_name')
+      .eq('id', user.id)
+      .single();
+
+    if (hostUserError) {
+      console.error('Error fetching host user:', hostUserError);
+      // Continue without host name if there's an error
+    }
+
     // Return the new group with the TaxiGroup interface
     return {
       id: newGroup.id,
       createdAt: new Date(newGroup.created_at),
       completedAt: newGroup.completed_at ? new Date(newGroup.completed_at) : new Date(),
       hostId: newGroup.host_id,
+      hostName: hostUser?.full_name || null,
       memo: newGroup.memo,
       peopleCount: 1, // Start with 1 (the creator)
       maxPeople: MAX_PEOPLE_PER_TAXI,
       isUserMember: true,
-      isUserHost: true // The creator is always the host
+      isUserHost: true, // The creator is always the host
+      depFrom: newGroup.dep_from
     };
   } catch (error) {
     console.error('Error creating taxi group:', error);
@@ -314,17 +349,31 @@ export const getUserTaxiGroup = async (): Promise<TaxiGroup | null> => {
       return null;
     }
 
+    // Get host information from public_user view
+    const {data: hostUser, error: hostUserError} = await supabase
+      .from('public_user')
+      .select('full_name')
+      .eq('id', group.host_id)
+      .single();
+
+    if (hostUserError) {
+      console.error('Error fetching host user:', hostUserError);
+      // Continue without host name if there's an error
+    }
+
     // Return the group with the TaxiGroup interface
     return {
       id: group.id,
       createdAt: new Date(group.created_at),
       completedAt: group.completed_at ? new Date(group.completed_at) : new Date(),
       hostId: group.host_id,
+      hostName: hostUser?.full_name || null,
       memo: group.memo,
       peopleCount: members ? members.length : 0,
       maxPeople: MAX_PEOPLE_PER_TAXI,
       isUserMember: true,
-      isUserHost: group.host_id === user.id
+      isUserHost: group.host_id === user.id,
+      depFrom: group.dep_from
     };
   } catch (error) {
     console.error('Error getting user taxi group:', error);
