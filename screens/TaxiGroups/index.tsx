@@ -81,11 +81,8 @@ export default function TaxiGroups({navigation}: NativeStackScreenProps<RootStac
     isUserRegistered().then(res => {
       if (!res) navigation.replace('TaxiGroupsOnboarding')
       else {
-        // Set loading ref to true to prevent duplicate loading from realtime subscription
-        isLoadingRef.current = true;
         loadTaxiGroups().then(() => {
           setLoading(false);
-          isLoadingRef.current = false;
         });
       }
     })
@@ -108,7 +105,7 @@ export default function TaxiGroups({navigation}: NativeStackScreenProps<RootStac
   // Set up Supabase Realtime subscription
   useEffect(() => {
     // Create a channel for taxi groups and members
-    const channel = supabase
+    supabase
       .channel('taxi-groups-changes')
       .on('postgres_changes', {
         event: '*', // Listen for all events (INSERT, UPDATE, DELETE)
@@ -128,9 +125,9 @@ export default function TaxiGroups({navigation}: NativeStackScreenProps<RootStac
       })
       .subscribe();
 
-    // Clean up subscription when component unmounts
+    // Clean up subscription when the component unmounts
     return () => {
-      supabase.removeChannel(channel).then();
+      supabase.channel('taxi-groups-changes').unsubscribe().then();
     };
   }, []);
 
@@ -140,7 +137,7 @@ export default function TaxiGroups({navigation}: NativeStackScreenProps<RootStac
     try {
       const newGroup = await createTaxiGroup(newGroupPeopleCount, newGroupMemo, newGroupDepFrom);
       if (newGroup) {
-        // Refresh the groups list
+        // Refresh the group list
         const groups = await fetchTaxiGroups();
         setTaxiGroups(groups);
         setUserGroup(newGroup); // Set the user's group to the newly created one
