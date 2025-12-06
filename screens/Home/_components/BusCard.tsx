@@ -4,96 +4,16 @@ import {Bus, ChevronRight, ChevronsRight} from "@tamagui/lucide-icons";
 import * as React from "react";
 import {useEffect, useState} from "react";
 import {PointId} from "../../../types/points";
-import {BusScheduleType, BusTimeApiRes} from "../../../types/busTime";
-import {getData, storeJsonData} from "../../../utils/storage";
+import {FlatBusEntry} from "../../../types/busTime";
+import {getCurrentScheduleType, getDirection, loadEntries, NormalizedBusItem, toUpcoming} from "../../../services/api/bus";
 
-type BusType = "express" | "local";
-
-interface BusItem {
-  destination: string;
-  type: BusType;
-  time: Date;
-}
+type BusItem = NormalizedBusItem;
 
 type SfcBusStop = "sfc" | "sfcHonkan"
 
-const jsonPaths: Record<PointId, Record<PointId, string | undefined>> = {
-  sfc: {
-    shonandai: "/fromSfc/toShonandai.json",
-    sfc: undefined,
-    sfcHonkan: undefined
-  },
-  sfcHonkan: {
-    shonandai: "/fromSfcHonkan/toShonandai.json",
-    sfc: undefined,
-    sfcHonkan: undefined
-  },
-  shonandai: {
-    sfc: "/fromShonandai/toSfc.json",
-    sfcHonkan: "/fromShonandai/toSfcHonkan.json",
-    shonandai: undefined
-  }
-};
-
-function extractCloseBusTimes(apiRes: BusTimeApiRes[]): BusItem[] {
-  const currentDay = new Date().getDay();
-  const currentScheduleType: BusScheduleType =
-    currentDay === 0
-      ? "holiday"
-      : currentDay === 6
-        ? "saturday"
-        : "weekday";
-  const now = new Date();
-  const nowTime = now.getHours() * 100 + now.getMinutes();
-
-  const uniqueBusTimes = new Set<string>();
-  const busItems: BusItem[] = [];
-
-  for (const res of apiRes) {
-    if (res.scheduleType !== currentScheduleType) continue;
-
-    const timeInt = parseInt(res.time);
-    if (timeInt < nowTime) continue;
-
-    const hours = Math.floor(timeInt / 100);
-    const minutes = timeInt % 100;
-    const date = new Date();
-    date.setHours(hours, minutes, 0, 0);
-
-    const isExpress = res.dest.includes("急・");
-    const destination = res.dest.replace("急・", "");
-
-    const uniqueKey = `${date.getTime()}-${destination}-${
-      isExpress ? "express" : "local"
-    }`;
-
-    if (!uniqueBusTimes.has(uniqueKey)) {
-      uniqueBusTimes.add(uniqueKey);
-      busItems.push({
-        destination,
-        type: isExpress ? "express" : "local",
-        time: date,
-      });
-    }
-  }
-
-  busItems.sort((a, b) => {
-    const timeDiff = a.time.getTime() - b.time.getTime();
-    if (timeDiff !== 0) return timeDiff;
-    return a.type === "express" && b.type !== "express" ? -1 : 1;
-  });
-
-  return busItems.slice(0, 7);
-}
-
-const getCurrentScheduleType = (): BusScheduleType => {
-  const day = new Date().getDay();
-  return day === 0 ? "holiday" : day === 6 ? "saturday" : "weekday";
-};
-
 export default function BusCard({dep, arr, isAtHonkan}: { dep: PointId; arr: PointId, isAtHonkan: boolean }) {
   const [busTimes, setBusTimes] = React.useState<BusItem[] | undefined>([]);
-  const [busData, setBusData] = React.useState<BusTimeApiRes[] | undefined>(undefined);
+  const [entries, setEntries] = React.useState<FlatBusEntry[] | undefined>(undefined);
   const [station, setStation] = useState<SfcBusStop>(isAtHonkan ? "sfcHonkan" : "sfc");
 
   useEffect(() => {
@@ -102,49 +22,39 @@ export default function BusCard({dep, arr, isAtHonkan}: { dep: PointId; arr: Poi
 
   useEffect(() => {
     setBusTimes(undefined);
-    setBusData(undefined);
-    const currentScheduleType: BusScheduleType = getCurrentScheduleType();
+    setEntries(undefined);
+    const currentScheduleType = getCurrentScheduleType();
     // 休日は本館前行きのバスはない
     if (currentScheduleType === "holiday" && station === "sfcHonkan") {
       setBusTimes([]);
-      setBusData([]);
+      setEntries([]);
       return;
     }
-    const depStation = dep.replace("sfc", station) as PointId
-    const arrStation = arr.replace("sfc", station) as PointId
-    const jsonFilePath = jsonPaths[depStation][arrStation]
-    if (!jsonFilePath) return;
-    // fetch bus data
-    getData(`bus-${jsonFilePath}`).then((res: BusTimeApiRes[]) => {
-      if (res) {
-        setBusData(res);
-        setBusTimes(extractCloseBusTimes(res));
-      }
-      fetch(
-        `https://github.com/kota113/SfcBusSchedules/blob/main${jsonFilePath}?raw=true`
-      )
-        .then(res => res.json())
-        .then((apiRes: BusTimeApiRes[]) => {
-          setBusData(apiRes);
-          setBusTimes(extractCloseBusTimes(apiRes));
-          storeJsonData(`bus-${jsonFilePath}`, apiRes).then();
-        })
-        .catch(err => console.error(err));
-    });
+    const direction = getDirection(dep);
+    loadEntries(direction, currentScheduleType)
+      .then((apiEntries) => {
+        setEntries(apiEntries);
+        setBusTimes(toUpcoming(apiEntries, {direction, station, arr}));
+      })
+      .catch(err => {
+        console.error(err);
+        setBusTimes([]);
+        setEntries([]);
+      });
   }, [dep, arr, station]);
 
   useEffect(() => {
-    if (busData) {
+    if (entries) {
       const intervalId = setInterval(() => {
-        const currentScheduleType: BusScheduleType = getCurrentScheduleType();
+        const currentScheduleType = getCurrentScheduleType();
         // 休日は本館前行きのバスはない
-        // todo: Yahoo!乗換案内からより正確なデータを取得する
         if (currentScheduleType === "holiday" && station === "sfcHonkan") return setBusTimes([]);
-        setBusTimes(extractCloseBusTimes(busData));
+        const direction = getDirection(dep);
+        setBusTimes(toUpcoming(entries, {direction, station, arr}));
       }, 60000); // Recalculate every minute
       return () => clearInterval(intervalId);
     }
-  }, [busData]);
+  }, [entries]);
 
   return (
     <Card elevate size="$4" marginTop={"$2"} maxHeight={busTimes && busTimes.length === 0 ? 180 : 300} flex={1}>
